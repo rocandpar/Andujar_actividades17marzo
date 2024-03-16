@@ -1,0 +1,140 @@
+---
+title: "Correlación lineal"
+author: "Rocío Andújar Pareja"
+date: "2024-03-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#1
+#La correlación lineal es una dimensión estadística que describe la relación
+#entre dos variables. Se describen los cambios de las dos variables en relación
+#con su tendencia lineal. 
+
+#2
+#La correlación lineal es una prueba de correlación paramétrica porque se necesita
+#que los datos sigan una distribución normal y una relación lineal. Se diferencia 
+#de las pruebas no paramétricas en que estas últimas no necesitan una distribución
+#normal ni una relación lineal; son más flexibles en cuanto a los datos. 
+
+```{r}
+#3
+library(readxl)
+dataclineal <- read_excel("GRADO ARQUEOLOGÍA US 2020-2024/4º ARQUEOLOGÍA/Aplicaciones informáticas en Arqueología y Estadística/dataclineal.xls")
+View(dataclineal)
+pairs(dataclineal)
+correlacion_data <- cor(dataclineal)
+print(correlacion_data)
+```
+
+
+```{r, echo = TRUE}
+#4
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0 ,1))
+  Cor <- abs(cor(x, y)) 
+  txt <- paste0(prefix, format(c(Cor, 0.123456789), digits = digits)[1])
+  if(missing(cex.cor)) {
+    cex.cor <- 0.4 / strwidth(txt)
+  }
+  text(0.5, 0.5, txt,
+       cex = 1 + cex.cor*Cor)
+}
+
+pairs(dataclineal,
+      upper.panel = panel.cor,
+      lower.panel = panel.smooth)
+
+```
+
+```{r, echo = TRUE}
+#5
+library(correlation)
+matrixx <- correlation(dataclineal)
+matrixx
+```
+
+```{r, echo = TRUE}
+#6
+library(ggpubr)
+library(ggplot2)
+ggscatter(dataclineal, x = "altura", y = "peso",
+          add = "reg.line", conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Altura Piezas", ylab = "Peso Piezas")
+```
+
+```{r, echo = TRUE}
+#7
+library(corrplot)
+corrplot(cor(dataclineal))
+```
+```{r, echo = TRUE}
+#8
+#a
+distancia <- c( 1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1)
+n_piezas <- c(110,2,6,98,40,94,31,5,8,10)
+datos8 <- data.frame(distancia, n_piezas)
+print(datos8)
+#b
+correlacion_datos8 <- cor(datos8)
+print(correlacion_datos8)
+#c
+significancia_datos8 <- cor.test(datos8$distancia, datos8$n_piezas)$p.value
+print(significancia_datos8)
+#d
+confianza_datos8 <- cor.test(datos8$distancia, datos8$n_piezas)$conf.int
+print(confianza_datos8)
+```
+#e
+
+#f
+
+#g
+Para afirmar la relación entre variables se necesita un tamaño muestral que pueda establecer unas conclusiones definitivas. Con un tamaño muestral de 10, esto puede resultar complicado, ya que uno puede caer en varios errores, como generalizar los resultados a un cuerpo de datos más amplio, aumenta el riesgo de obtener resultados incorrectos y la capacidad para detectar una correlación se ve limitada.
+
+```{r, echo = TRUE}
+#9
+set.seed(123)
+X_lineal <- 1:100
+Y_lineal <- X_lineal + rnorm(100, mean = 0, sd = 10)
+X_monotona <- 1:100
+Y_monotona <- X_monotona^2 + rnorm(100, mean = 0, sd = 100)
+plot(X_lineal, Y_lineal, main = "Relación Lineal", xlab = "X", ylab = "Y", col = "pink")
+abline(lm(Y_lineal ~ X_lineal), col = "lightblue")
+plot(X_monotona, Y_monotona, main = "Relación Monótona", xlab = "X", ylab = "Y", col = "pink")
+```
+```{r, echo = TRUE}
+#10
+#Se usa la prueba de correlación de Spearman en las variables que experimentan una relación monótona, ya que es una prueba no paramétrica (adecuada para los datos que no cumplen con la normalidad necesaria para las pruebas paramétricas)
+set.seed(123) 
+X_monotona <- 1:100
+Y_monotona <- X_monotona^2 + rnorm(100, mean = 0, sd = 100)
+correlation_spearman <- cor.test(X_monotona, Y_monotona, method = "spearman")
+print(correlation_spearman)
+```
